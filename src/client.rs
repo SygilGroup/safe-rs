@@ -2,18 +2,22 @@ use crate::constants;
 use crate::types::node_info::NodeInfo;
 use crate::types::service_info::ServiceInfo;
 use reqwest::Client;
-use thiserror::Error;
 
 pub struct SafeClient {
     client: Client,
 }
 
-#[derive(Error, Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum SafeClientError {
+    /// Reqwest error
+    #[error("{0}")]
+    Reqwest(#[from] reqwest::Error),
+    /// Serde JSON error
+    #[error("{0}")]
+    SerdeJson(#[from] serde_json::Error),
+    /// Other error, marked as unknown
     #[error("Unknown error")]
     UnknownError,
-    #[error("Conversion error")]
-    ConversionError,
 }
 
 impl SafeClient {
@@ -29,11 +33,9 @@ impl SafeClient {
             .client
             .get(format!("{}/{}", constants::SAFE_MAINNET_URL, "v1/about/"))
             .send()
-            .await
-            .map_err(|_| SafeClientError::UnknownError)?
+            .await?
             .json()
-            .await
-            .map_err(|_| SafeClientError::ConversionError)?;
+            .await?;
 
         Ok(service_info)
     }
@@ -47,11 +49,9 @@ impl SafeClient {
                 "v1/about/ethereum-rpc/"
             ))
             .send()
-            .await
-            .map_err(|_| SafeClientError::UnknownError)?
+            .await?
             .json()
-            .await
-            .map_err(|_| SafeClientError::ConversionError)?;
+            .await?;
         Ok(node_info)
     }
 }
