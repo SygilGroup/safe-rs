@@ -1,4 +1,5 @@
 use crate::constants;
+use crate::types::node_info::NodeInfo;
 use crate::types::service_info::ServiceInfo;
 use reqwest::Client;
 use thiserror::Error;
@@ -35,5 +36,22 @@ impl SafeClient {
             .map_err(|_| SafeClientError::ConversionError)?;
 
         Ok(service_info)
+    }
+
+    pub async fn ethereum_rpc_info(&self) -> Result<NodeInfo, SafeClientError> {
+        let node_info: NodeInfo = self
+            .client
+            .get(format!(
+                "{}/{}",
+                constants::SAFE_MAINNET_URL,
+                "v1/about/ethereum-rpc/"
+            ))
+            .send()
+            .await
+            .map_err(|_| SafeClientError::UnknownError)?
+            .json()
+            .await
+            .map_err(|_| SafeClientError::ConversionError)?;
+        Ok(node_info)
     }
 }
