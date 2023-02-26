@@ -1,5 +1,6 @@
 use crate::constants;
 use crate::types::node_info::NodeInfo;
+use crate::types::routes::SafeRoute;
 use crate::types::service_info::ServiceInfo;
 use reqwest::Client;
 
@@ -31,7 +32,11 @@ impl SafeClient {
     pub async fn service_info(&self) -> Result<ServiceInfo, SafeClientError> {
         let service_info: ServiceInfo = self
             .client
-            .get(format!("{}/{}", constants::SAFE_MAINNET_URL, "v1/about/"))
+            .get(format!(
+                "{}/{}",
+                constants::SAFE_MAINNET_URL,
+                SafeRoute::ServiceInfo.to_string(),
+            ))
             .send()
             .await?
             .json()
@@ -46,7 +51,7 @@ impl SafeClient {
             .get(format!(
                 "{}/{}",
                 constants::SAFE_MAINNET_URL,
-                "v1/about/ethereum-rpc/"
+                SafeRoute::EthereumRpcInfo.to_string(),
             ))
             .send()
             .await?
