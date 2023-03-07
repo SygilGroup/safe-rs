@@ -13,3 +13,10 @@ async fn it_gets_node_info() {
     let node_info = client.ethereum_rpc_info().await.unwrap();
     assert!(node_info.version.contains("erigon") || node_info.version.contains("geth"));
 }
+
+#[tokio::test]
+async fn it_gets_node_tracing_info() {
+    let client = SafeClient::new();
+    let node_info = client.ethereum_tracing_info().await.unwrap();
+    assert!(node_info.version.contains("erigon") || node_info.version.contains("geth"));
+}

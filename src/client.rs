@@ -1,7 +1,6 @@
 use crate::constants;
-use crate::types::node_info::NodeInfo;
-use crate::types::routes::SafeRoute;
-use crate::types::service_info::ServiceInfo;
+use crate::types::node_tracing_info::NodeTracingInfo;
+use crate::types::{node_info::NodeInfo, routes::SafeRoute, service_info::ServiceInfo};
 use reqwest::Client;
 
 pub struct SafeClient {
@@ -58,5 +57,20 @@ impl SafeClient {
             .json()
             .await?;
         Ok(node_info)
+    }
+
+    pub async fn ethereum_tracing_info(&self) -> Result<NodeTracingInfo, SafeClientError> {
+        let node_tracing_info: NodeTracingInfo = self
+            .client
+            .get(format!(
+                "{}/{}",
+                constants::SAFE_MAINNET_URL,
+                SafeRoute::EthereumTracingRpcInfo.to_string(),
+            ))
+            .send()
+            .await?
+            .json()
+            .await?;
+        Ok(node_tracing_info)
     }
 }
